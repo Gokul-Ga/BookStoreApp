@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const Review = require('../models/reviewModel');
@@ -10,10 +9,9 @@ router.get('/getReviews', async (req, res) => {
     try {
       const { bookId } = req.query;
   
-      // Fetch reviews for the specified book ID
+      
       const reviews = await Review.find({ bookId });
   
-      // Send the reviews as a response
       res.status(200).json(reviews);
     } catch (error) {
       console.error(error);

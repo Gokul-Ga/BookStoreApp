@@ -149,48 +149,60 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Create a rental for a book
+
+//RENT BOOK
+
+
 router.post('/rentBook', async (req, res) => {
   try {
-    const { bookId,bookname, userName, contactNumber } = req.body;
+    const { bookId, bookname, userName, contactNumber, userId } = req.body;
 
-  
     const book = await Book.findById(bookId);
     if (!book) {
       return res.status(404).json({ message: 'Book not found' });
     }
 
-    const existingRental = await Rental.findOne({ book: bookId, userId: req.body.userId });
+    const existingRental = await Rental.findOne({ book: bookId, userId });
+
     if (existingRental) {
+      // Check if the book has been returned (returnStatus is true)
+      if (existingRental.returnStatus) {
+        // The book has been returned, allow the rental
+        const newRental = new Rental({
+          book: bookId,
+          bookname,
+          userId,
+          userName,
+          contactNumber,
+        });
+
+        await newRental.save();
+
+        // Decrease the number of available copies if the book is available for rent
+        if (book.numberOfCopies > 0) {
+          book.numberOfCopies -= 1;
+          await book.save();
+        } else {
+          return res.status(404).json({ message: 'No available copies of the book' });
+        }
+
+        res.status(201).json({ message: 'Book Rented successfully' });
+      } else {
+        return res.status(409).json({ message: 'You have already rented this book' });
+      }
+    } else {
       return res.status(409).json({ message: 'You have already rented this book' });
     }
-
-   
-    const newRental = new Rental({
-      book: bookId,
-      bookname,
-      userId: req.body.userId,
-      userName,
-      contactNumber,
-    });
-
-   
-    await newRental.save();
-
-   
-    if (book.numberOfCopies > 0) {
-      book.numberOfCopies -= 1;
-      await book.save();
-    } else {
-      return res.status(404).json({ message: 'No available copies of the book' });
-    }
-
-    res.status(201).json({ message: 'Book Rented successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
+
+
+
 
 
 
@@ -273,7 +285,7 @@ module.exports = router;
 
 
 
-module.exports = router;
+
 
 
 
