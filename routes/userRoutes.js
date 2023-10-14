@@ -11,6 +11,10 @@ router.use(express.urlencoded({ extended: true }));
 const secretKey = 'BookStore';
 
 
+
+
+//SIGNUP
+
 router.post('/signup', async (req, res) => {
   const { name, email, mobile, password } = req.body;
 
@@ -19,7 +23,7 @@ router.post('/signup', async (req, res) => {
   }
 
   try {
-    // Check if the user with the same email already exists
+
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'Email is already registered' });
@@ -29,10 +33,10 @@ router.post('/signup', async (req, res) => {
       name,
       email,
       mobile,
-      password, // Store the password as plain text
+      password,
     });
 
-    
+
 
     res.status(200).json({
       message: 'Registration Successful',
@@ -53,7 +57,7 @@ router.post('/login', async (req, res) => {
 
   try {
     if (user && user.password === password) {
-      // Generate a JWT token
+
       jwt.sign({ email: email, id: user._id, role: user.role }, "BookStore", { expiresIn: '1d' }, (error, token) => {
         if (error) {
           console.error("JWT Token Generation Error:", error);
@@ -85,7 +89,7 @@ router.post('/login', async (req, res) => {
 
 
 const authenticateToken = (req, res, next) => {
-  const token = req.body.token; // Get the token from the request body (or headers if preferred)
+  const token = req.body.token;
   if (!token) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
@@ -94,26 +98,32 @@ const authenticateToken = (req, res, next) => {
     if (err) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
-    // Token is valid, and user data (if needed) can be accessed as 'decoded'
+
     req.user = {
-      id: decoded.id, // Extract the user's ID from the decoded token
-      // You can extract other user-related data here if needed
+      id: decoded.id,
+
     };
     next();
   });
 };
 
+
+
+
+
+
+
 // Fetch user profile
 router.post('/user-profile', authenticateToken, async (req, res) => {
   try {
-    // Fetch user details based on the user ID using async/await
+
     const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    
+
     return res.status(200).json(user);
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -121,15 +131,19 @@ router.post('/user-profile', authenticateToken, async (req, res) => {
   }
 });
 
+
+
+
+
 // Update user profile
 router.post('/update-profile', authenticateToken, async (req, res) => {
   try {
-    // Ensure the user can only update their own profile
+
     if (req.user.id !== req.body.userId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    // Update user profile based on the user ID using async/await
+
     await User.findByIdAndUpdate(req.user.id, req.body.updatedUserData);
 
     return res.status(200).json({ message: 'Profile updated successfully' });
@@ -138,28 +152,6 @@ router.post('/update-profile', authenticateToken, async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -181,7 +173,10 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-// Route to get the list of users
+
+
+
+//  Get the list of users
 router.get('/get-users', verifyToken, async (req, res) => {
   try {
     const users = await User.find({}, '_id name email mobile');
@@ -192,7 +187,11 @@ router.get('/get-users', verifyToken, async (req, res) => {
   }
 });
 
-// Route to delete a user
+
+
+
+
+//  Delete a user
 router.delete('/delete-user', verifyToken, async (req, res) => {
   const { userId } = req.body;
 
@@ -204,13 +203,6 @@ router.delete('/delete-user', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
-
-
-
-
-
-
 
 
 

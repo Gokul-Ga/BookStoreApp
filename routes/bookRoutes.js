@@ -65,7 +65,16 @@ router.post('/addbook', upload.single('bookImage'), async (req, res) => {
   }
 });
 
-// Fetch all books
+
+
+
+
+
+
+
+
+
+// GET all books
 router.get('/getbooks', async (req, res) => {
   try {
     const books = await Book.find();
@@ -84,6 +93,15 @@ router.get('/getbooks', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
+
+
+
+
+
+
+
 
 // Get a specific book by ID
 router.get('/:id', async (req, res) => {
@@ -109,6 +127,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+
+
 // Update the number of copies of a book by ID
 router.put('/updateCopies/:id', async (req, res) => {
   try {
@@ -119,7 +139,7 @@ router.put('/updateCopies/:id', async (req, res) => {
     };
 
     const result = await Book.findByIdAndUpdate(req.params.id, updatedBook, {
-      new: true, // Return the updated book
+      new: true, 
     });
 
     if (!result) {
@@ -133,7 +153,12 @@ router.put('/updateCopies/:id', async (req, res) => {
   }
 });
 
-// Delete a book by ID
+
+
+
+
+
+// Delete a book 
 router.delete('/:id', async (req, res) => {
   try {
     const result = await Book.findByIdAndRemove(req.params.id);
@@ -150,9 +175,13 @@ router.delete('/:id', async (req, res) => {
 });
 
 
+
+
+
+
+
+
 //RENT BOOK
-
-
 
 router.post('/rentBook', async (req, res) => {
   try {
@@ -166,9 +195,9 @@ router.post('/rentBook', async (req, res) => {
     const existingRental = await Rental.findOne({ book: bookId, userId });
 
     if (existingRental) {
-      // Check if the book has been returned (returnStatus is true)
+      
       if (existingRental.returnStatus) {
-        // The book has been returned, allow the rental
+        
         const newRental = new Rental({
           book: bookId,
           bookname,
@@ -179,7 +208,7 @@ router.post('/rentBook', async (req, res) => {
 
         await newRental.save();
 
-        // Decrease the number of available copies if the book is available for rent
+        
         if (book.numberOfCopies > 0) {
           book.numberOfCopies -= 1;
           await book.save();
@@ -191,7 +220,7 @@ router.post('/rentBook', async (req, res) => {
         return res.status(409).json({ message: 'You have already rented this book' });
       }
     } else {
-      // No existing rental record found, the user can rent the book
+      
       const newRental = new Rental({
         book: bookId,
         bookname,
@@ -202,7 +231,7 @@ router.post('/rentBook', async (req, res) => {
 
       await newRental.save();
 
-      // Decrease the number of available copies if the book is available for rent
+      
       if (book.numberOfCopies > 0) {
         book.numberOfCopies -= 1;
         await book.save();
@@ -216,30 +245,6 @@ router.post('/rentBook', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -268,6 +273,10 @@ router.get('/getbooks', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
+
+
 
 
 
