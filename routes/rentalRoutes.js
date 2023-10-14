@@ -105,45 +105,6 @@ router.delete('/allrentals/:id', async (req, res) => {
 
 
 
-// Return a book
-router.put('/returnBook', authenticateToken, async (req, res) => {
-  try {
-    const { bookId, rentalId } = req.body;
-
-    // Check if the user has permission to return the book
-    const rental = await Rental.findById(rentalId);
-    if (!rental) {
-      return res.status(404).json({ message: 'Rental not found' });
-    }
-
-    // Check if the book exists
-    const book = await Book.findById(bookId);
-    if (!book) {
-      return res.status(404).json({ message: 'Book not found' });
-    }
-
-    // Check if the book has already been returned
-    if (rental.returnStatus) {
-      return res.status(400).json({ message: 'Book has already been returned' });
-    }
-
-    // Update the rental to set returnStatus to true
-    rental.returnStatus = true;
-    await rental.save();
-
-    // Increase the number of copies of the book
-    book.numberOfCopies += 1;
-    await book.save();
-
-    res.status(200).json({ message: 'Book returned successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-
-
 
 
 
